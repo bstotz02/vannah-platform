@@ -1,7 +1,7 @@
-# Vannah 0.5 — Operations
+# Vannah Preview 0.6
 
-GitHub Pages browser-only prototype with dedicated Overview, CRM, Projects, Finance and Operations views.
+Static browser-only prototype with Overview, CRM, Projects, Finance, Operations, and Automation.
 
-Operations supports work-order creation, editing, deletion, search, status, priority, due dates, assignees, and optional links to CRM contacts and Projects.
+Automation rules respond to newly created contacts, projects and work orders, or work orders marked completed. Supported actions: local activity logging and adding a follow-up task to an associated project. Rules run only when the demo page is open and an event occurs; there is no external scheduling, integration, email, or background execution.
 
-Upload `index.html` and `README.md` to the root of the existing repository, replacing earlier versions. Do not upload actual customer or financial information. Data is stored in browser localStorage only and is not synchronized between devices.
+Do not enter real customer or financial information. GitHub Pages publicly hosts the client code. To deploy, replace the root index.html and README.md files.
