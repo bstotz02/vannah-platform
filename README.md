@@ -1,8 +1,9 @@
-# Vannah — Preview 0.3
+# Vannah — Preview 0.4
 
 A static, responsive demo of an integrated business software platform.
 
 ## Modules
+- **Overview**: dedicated dashboard with live CRM, Projects and Finance summaries, recent activity and quick navigation (no longer the CRM page).
 - **CRM**: sample contacts; add, search, edit, and delete.
 - **Projects**: create projects, link contacts, and manage tasks and deadlines.
 - **Finance**: record mock income/expenses, view transaction history and monthly totals, link transactions to projects.
