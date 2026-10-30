@@ -1,14 +1,7 @@
-# Vannah — Preview 0.4
+# Vannah Preview 0.4.1
 
-A static, responsive demo of an integrated business software platform.
+Fixes CRM-only demo notice appearing on Overview, and adds an obvious version identifier.
 
-## Modules
-- **Overview**: dedicated dashboard with live CRM, Projects and Finance summaries, recent activity and quick navigation (no longer the CRM page).
-- **CRM**: sample contacts; add, search, edit, and delete.
-- **Projects**: create projects, link contacts, and manage tasks and deadlines.
-- **Finance**: record mock income/expenses, view transaction history and monthly totals, link transactions to projects.
+Upload **index.html** and **README.md** directly to the ROOT of your GitHub repository to replace the previous files.
 
-All data is stored only in the current browser using localStorage. This is **not** secure for real business or financial data. No user accounts, bank integrations, billing, or cloud database are included. Do not enter real customer or financial information.
-
-## Deploy
-Upload `index.html` and `README.md` to the root of the existing `vannah-platform` GitHub repository; overwrite the earlier files, then GitHub Pages will deploy the update.
+This is a demo; do not enter real financial or customer information.
