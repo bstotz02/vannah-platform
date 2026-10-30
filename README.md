@@ -1,7 +1,7 @@
-# Vannah Preview 0.4.1
+# Vannah 0.5 — Operations
 
-Fixes CRM-only demo notice appearing on Overview, and adds an obvious version identifier.
+GitHub Pages browser-only prototype with dedicated Overview, CRM, Projects, Finance and Operations views.
 
-Upload **index.html** and **README.md** directly to the ROOT of your GitHub repository to replace the previous files.
+Operations supports work-order creation, editing, deletion, search, status, priority, due dates, assignees, and optional links to CRM contacts and Projects.
 
-This is a demo; do not enter real financial or customer information.
+Upload `index.html` and `README.md` to the root of the existing repository, replacing earlier versions. Do not upload actual customer or financial information. Data is stored in browser localStorage only and is not synchronized between devices.
