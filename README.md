@@ -1,16 +1,13 @@
-# Vannah — Preview 0.2
+# Vannah — Preview 0.3
 
-A static, responsive early prototype of Vannah business software.
+A static, responsive demo of an integrated business software platform.
 
-## What works
-- CRM: add, edit, delete, and search contacts.
-- Projects: create, edit, delete, and search projects.
-- Link projects to CRM contacts.
-- Add, complete, and delete project tasks; see completion progress and deadlines.
-- Responsive dark-blue dashboard and navigation.
+## Modules
+- **CRM**: sample contacts; add, search, edit, and delete.
+- **Projects**: create projects, link contacts, and manage tasks and deadlines.
+- **Finance**: record mock income/expenses, view transaction history and monthly totals, link transactions to projects.
 
-## Deployment
-Upload `index.html` and `README.md` directly to the root of the existing `vannah-platform` GitHub repository. GitHub Pages serves `index.html`.
+All data is stored only in the current browser using localStorage. This is **not** secure for real business or financial data. No user accounts, bank integrations, billing, or cloud database are included. Do not enter real customer or financial information.
 
-## Important
-This is a demonstration, not a production service. Data is stored **only in the current browser's localStorage**, with no accounts, cloud sync, security boundary, or backups. Never use real customer data. No financial transactions or billing are integrated.
+## Deploy
+Upload `index.html` and `README.md` to the root of the existing `vannah-platform` GitHub repository; overwrite the earlier files, then GitHub Pages will deploy the update.
