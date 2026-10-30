@@ -1,22 +1,16 @@
-# Vannah — Preview 0.1
+# Vannah — Preview 0.2
 
-A static, responsive **Vannah CRM** prototype and early site foundation.
+A static, responsive early prototype of Vannah business software.
 
 ## What works
-- Add, edit, delete, and search contacts
-- Track Lead, Customer, and Prospect statuses
-- Live contact summary cards
-- Browser-only persistence via `localStorage`
-- Mobile-friendly layout
+- CRM: add, edit, delete, and search contacts.
+- Projects: create, edit, delete, and search projects.
+- Link projects to CRM contacts.
+- Add, complete, and delete project tasks; see completion progress and deadlines.
+- Responsive dark-blue dashboard and navigation.
 
-## What does not work yet
-This is a **prototype**, not a production SaaS system. There is no login, backend, multi-tenant data isolation, secure storage, billing, or synchronization. Other module names are placeholders. **Use fictional contact data only.**
+## Deployment
+Upload `index.html` and `README.md` directly to the root of the existing `vannah-platform` GitHub repository. GitHub Pages serves `index.html`.
 
-## Upload to GitHub
-1. Create a new **public** GitHub repository named `vannah` (or `vannah-platform`).
-2. Choose **Add file → Upload files** and upload `index.html` and `README.md` from this folder, then commit.
-3. In your repository go to **Settings → Pages**. Select **Deploy from a branch**, `main` and `/ (root)` and save.
-4. Your published site should become accessible at `https://YOUR-USERNAME.github.io/vannah/` (replace with your actual username/repo name). GitHub Pages deployment can take a little time.
-
-## Next build
-Before using real customer data, plan and implement secure authentication, a backend, database tenant isolation, role-based permissions, logging, and a privacy/security review. Extend the shared navigation and layout into modular products.
+## Important
+This is a demonstration, not a production service. Data is stored **only in the current browser's localStorage**, with no accounts, cloud sync, security boundary, or backups. Never use real customer data. No financial transactions or billing are integrated.
