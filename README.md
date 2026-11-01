@@ -1,10 +1,14 @@
-# Vannah Preview 0.7 — 10 Demo Applications
+# Vannah Preview 0.8 — Integration update
 
-A single static browser-based prototype including Overview and 10 applications:
-CRM, Projects, Finance, Operations, Automation, Invoices, Contracts, Scheduling, Inventory, Vendors.
+Upload `index.html` and `README.md` directly to the root of the existing GitHub Pages repository.
 
-Upload `index.html` and `README.md` to the **root** of your existing `vannah-platform` GitHub repository, replacing earlier versions. GitHub Pages deploys from `main` / root.
+## Changes
+- Overview shows unpaid invoice balances, work orders, active automation rules, and vendor count.
+- Finance now includes invoice payment amounts as **derived read-only entries**. Editing or deleting an invoice updates the Finance view without creating duplicate entries. These entries use the invoice due date as a display placeholder because the prototype does not record payment dates.
+- Projects display counts of their linked work orders and completed work orders.
+- CRM customer/project names still populate existing linked records.
 
-**Demo-only:** Data is stored in `localStorage` on the current browser and device. No secure logins, cloud database, payments, email delivery, server-side scheduling, or background automation. Never enter private financial, customer, or legal information. Invoice payment status is manually entered, not verified or processed. Finance totals do not automatically include invoices to prevent double-counting.
-
-Test: navigate to all 10 apps, add/edit/delete demo records, switch views, and refresh to check local persistence.
+## Notes
+- Records are stored in browser localStorage, not a server. No real payment processing, background automation, security controls, or actual accounting sync.
+- Do **not** enter real financial or customer information. Don't manually re-enter invoice payments in Finance; that would double count.
+- This is a prototype, not accounting software.
