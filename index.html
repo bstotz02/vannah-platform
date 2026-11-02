@@ -518,4 +518,67 @@ get('cloudCompanySelect').addEventListener('change',async(e)=>{activeCompany=e.t
 get('cloudRefresh').addEventListener('click',()=>loadCompanies());
 })();
 </script>
+ 
+<!-- VANNAH BUSINESS WORKSPACE NAVIGATION REPAIR -->
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const nav = document.querySelector('#cloudCompanyArea .cloud-module-nav');
+  if (!nav) return;
+
+  const project = $('cloudProjectForm')?.closest('section.panel');
+  const invoice = $('cloudInvoiceForm')?.closest('section.panel');
+  const finance = $('cloudFinanceForm')?.closest('section.panel');
+
+  if (project) project.id = 'cloudProjectArea';
+  if (invoice) invoice.id = 'cloudInvoiceArea';
+  if (finance) finance.id = 'cloudFinanceArea';
+
+  const contactForm = $('cloudContactForm');
+
+  if (contactForm && !$('cloudContactArea')) {
+    const crm = document.createElement('section');
+    crm.id = 'cloudContactArea';
+    crm.className = 'panel';
+    crm.style.marginTop = '24px';
+
+    contactForm.parentNode.insertBefore(crm, contactForm);
+
+    const contactList = $('cloudContactList');
+    const contactHeading = contactList?.previousElementSibling;
+    const contactNote = contactList?.nextElementSibling;
+
+    crm.append(contactForm);
+    if (contactHeading?.tagName === 'H3') crm.append(contactHeading);
+    if (contactList) crm.append(contactList);
+    if (contactNote?.classList.contains('soon')) crm.append(contactNote);
+  }
+
+  const tabs = [...nav.querySelectorAll('[data-cloud-target]')];
+  const sections = tabs.map(t => $(t.dataset.cloudTarget)).filter(Boolean);
+
+  const selectTab = id => {
+    sections.forEach(el => {
+      el.classList.toggle('hidden', el.id !== id);
+    });
+
+    tabs.forEach(t => {
+      const active = t.dataset.cloudTarget === id;
+      t.classList.toggle('active', active);
+      t.setAttribute('aria-pressed', String(active));
+    });
+  };
+
+  nav.addEventListener('click', e => {
+    const tab = e.target.closest('[data-cloud-target]');
+    if (!tab || !nav.contains(tab)) return;
+
+    e.stopImmediatePropagation();
+    selectTab(tab.dataset.cloudTarget);
+  }, true);
+
+  selectTab('cloudContactArea');
+})();
+</script>
+<!-- END VANNAH REPAIR -->
 </body></html>
