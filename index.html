@@ -581,4 +581,90 @@ get('cloudRefresh').addEventListener('click',()=>loadCompanies());
 })();
 </script>
 <!-- END VANNAH REPAIR -->
+<!-- Vannah 1.5: Invoice + Finance companion UI (no database/schema changes) -->
+<style>
+.vannah-bridge{margin:18px 0;padding:20px;border:1px solid #344669;border-radius:14px;background:#101d32}
+.vannah-bridge h3{margin:0 0 8px;font-size:18px}
+.vannah-bridge .bridge-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin:15px 0}
+.vannah-bridge .bridge-metric{padding:14px;background:#111b2d;border:1px solid #293d5b;border-radius:10px}
+.vannah-bridge .bridge-metric strong{display:block;font-size:23px;margin-top:8px;overflow-wrap:anywhere}
+.vannah-bridge small,.vannah-bridge p{color:#a8b9d4;line-height:1.5}
+.vannah-bridge select{background:#0b1423;color:#fff;padding:9px;border:1px solid #344867;border-radius:8px}
+</style>
+<script>
+(() => {
+ 'use strict';
+ const $=id=>document.getElementById(id);
+ const invoiceForm=$('cloudInvoiceForm'),financeForm=$('cloudFinanceForm');
+ const invoiceList=$('cloudInvoiceList'),financeList=$('cloudFinanceList');
+ if(!invoiceForm||!financeForm||!invoiceList||!financeList)return;
+ const usd=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(n);
+ const financeSection=financeForm.closest('section.panel');
+ const invoiceSection=invoiceForm.closest('section.panel');
+ if(!financeSection||!invoiceSection||$('vannah-financial-bridge'))return;
+ const bridge=document.createElement('div');
+ bridge.id='vannah-financial-bridge';bridge.className='vannah-bridge';
+ bridge.innerHTML=`<h3>Combined financial snapshot <span class="status">1.5 Beta</span></h3>
+ <p>Receipts reported on invoices plus separately entered manual Finance income, less manual expenses.</p>
+ <div class="bridge-grid">
+ <div class="bridge-metric"><small>Invoice receipts</small><strong id="vfb-receipts">$0.00</strong></div>
+ <div class="bridge-metric"><small>Other manual income</small><strong id="vfb-income">$0.00</strong></div>
+ <div class="bridge-metric"><small>Manual expenses</small><strong id="vfb-expenses">$0.00</strong></div>
+ <div class="bridge-metric"><small>Combined net movement</small><strong id="vfb-net">$0.00</strong></div>
+ <div class="bridge-metric"><small>Outstanding invoices</small><strong id="vfb-outstanding">$0.00</strong></div>
+ </div>
+ <p id="vfb-note">All-time visible summaries, not a bank balance or profit-and-loss statement. Invoice receipts have no payment date recorded. Totals exclude void invoices and may exclude records beyond the first 200 loaded per module. Avoid recording an invoice receipt again as manual income.</p>`;
+ financeSection.insertBefore(bridge,financeForm);
+ const getMoney=id=>{
+  const raw=($(id)?.textContent||'').replace(/[^0-9.-]/g,'');
+  return Number(raw)||0;
+ };
+ const update=()=>{
+  const receipts=getMoney('cloudInvoiceReceipts');
+  const income=getMoney('cloudManualIncome');
+  const expenses=getMoney('cloudManualExpense');
+  const outstanding=getMoney('cloudInvoiceOutstanding');
+  for(const [id,n] of [['vfb-receipts',receipts],['vfb-income',income],
+    ['vfb-expenses',expenses],['vfb-net',receipts+income-expenses],
+    ['vfb-outstanding',outstanding]])$(id).textContent=usd(n);
+ };
+ for(const id of ['cloudInvoiceReceipts','cloudManualIncome','cloudManualExpense','cloudInvoiceOutstanding']){
+  const node=$(id);
+  if(node)new MutationObserver(update).observe(node,{childList:true,characterData:true,subtree:true});
+ }
+ const status=invoiceForm.elements.namedItem('status');
+ const amount=invoiceForm.elements.namedItem('amount');
+ const paid=invoiceForm.elements.namedItem('paid');
+ const autoStatus=()=>{
+  if(!amount||!paid||!status||status.value==='Void')return;
+  const a=Number(amount.value),p=Number(paid.value);
+  if(!Number.isFinite(a)||a<=0||!Number.isFinite(p)||p<0)return;
+  if(p>=a)status.value='Paid';
+  else if(p>0)status.value='Partially paid';
+  else if(status.value==='Paid'||status.value==='Partially paid')status.value='Sent';
+ };
+ amount.addEventListener('input',autoStatus);
+ paid.addEventListener('input',autoStatus);
+ invoiceForm.addEventListener('submit',e=>{
+  const a=Number(amount.value),p=Number(paid.value);
+  if(!Number.isFinite(a)||a<=0||!Number.isFinite(p)||p<0||p>a){
+   e.preventDefault();e.stopImmediatePropagation();
+   alert('Amount received must be between $0 and the invoice total.');return;
+  }
+  if(status.value==='Void'&&p>0){
+   e.preventDefault();e.stopImmediatePropagation();
+   alert('A void invoice cannot contain receipts. Resolve the payment record first.');return;
+  }
+  if(status.value==='Paid'&&p!==a || status.value==='Partially paid'&&(p<=0||p>=a)){
+   e.preventDefault();e.stopImmediatePropagation();
+   alert('Invoice payment status and amount received do not match.');return;
+  }
+ },true);
+ const label=document.createElement('p');label.className='soon';
+ label.textContent='Invoice status adjusts as you enter the amount received. Payment records are manual; no money is charged or transferred.';
+ invoiceForm.append(label);
+ update();
+})();
+</script>
+<!-- End Vannah 1.5 companion UI -->
 </body></html>
