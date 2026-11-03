@@ -1,3 +1,0 @@
-<!-- VANNAH 1.7: insert these two lines immediately above </body> in the existing index.html. -->
-<link rel="stylesheet" href="vannah-1.7.css">
-<script src="vannah-1.7.js"></script>
