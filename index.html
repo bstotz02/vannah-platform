@@ -667,4 +667,128 @@ get('cloudRefresh').addEventListener('click',()=>loadCompanies());
 })();
 </script>
 <!-- End Vannah 1.5 companion UI -->
+<!-- VANNAH 1.6: Business-first workspace and separate demo route.
+     Paste once, immediately before the final </body> in index.html.
+     Keep your existing Supabase setup and all other scripts. -->
+<style>
+  body.vannah-business .mode-switch { display:none!important; }
+  body.vannah-business .cloud-module-nav { display:none!important; }
+  body.vannah-business .sidebar-foot { font-size:12px; }
+  body.vannah-business .sidebar .nav button[data-business-inactive] { display:none!important; }
+  .vannah-business-tools {display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:22px;padding:12px 15px;border:1px solid #304564;border-radius:12px;background:#0e1a2d}
+  .vannah-business-tools strong {font-size:13px;color:#edf4ff}
+  .vannah-business-tools a {color:#a9c9ff;text-decoration:none;border:1px solid #45618b;border-radius:8px;padding:9px 12px;font-size:12px}
+  .vannah-business-tools a:hover {background:#243e67}
+  #cloudOverviewArea .vannah-links {display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:18px}
+  #cloudOverviewArea button {padding:19px 15px;background:#152443;border:1px solid #344b70;border-radius:12px;text-align:left;color:#eaf0fc;font:inherit;cursor:pointer}
+  #cloudOverviewArea button:hover {border-color:#86a9ff}
+  #cloudOverviewArea button small {display:block;color:#a7badd;margin-top:9px}
+  @media(max-width:800px){body.vannah-business .sidebar .nav{flex-wrap:wrap;overflow:visible}body.vannah-business .sidebar .nav button{flex:1 1 130px}}
+</style>
+<script>
+window.addEventListener('load', () => {
+  const $ = id => document.getElementById(id);
+  const isDemo = new URLSearchParams(location.search).get('demo') === '1';
+  if (isDemo) {
+    $('modeDemo')?.click();
+    document.querySelector('.mode-switch')?.classList.add('hidden');
+    return;
+  }
+  document.body.classList.add('vannah-business');
+  $('modeBusiness')?.click();
+  const preview = $('businessPreview');
+  const sidebar = document.querySelector('.sidebar .nav');
+  const cloud = $('cloudCompanyArea');
+  if (!preview || !sidebar || !cloud) return;
+
+  const oldFooter = document.querySelector('.sidebar-foot');
+  if (oldFooter) oldFooter.textContent = 'Vannah business workspace · Private beta · Fictional data only';
+  const toolbar = document.createElement('div');
+  toolbar.className = 'vannah-business-tools';
+  toolbar.innerHTML = '<strong>Vannah · Business Workspace</strong><a href="demo.html" target="_blank" rel="noopener">Explore public demo</a>';
+  preview.insertBefore(toolbar, preview.firstChild);
+  const existingCloudNav = cloud.querySelector('.cloud-module-nav');
+
+  // Respect the working CRM tab fix already installed, if present.
+  const formPanels = [
+    ['cloudProjectArea', 'cloudProjectForm'],
+    ['cloudInvoiceArea', 'cloudInvoiceForm'],
+    ['cloudFinanceArea', 'cloudFinanceForm']
+  ];
+  for (const [target, formId] of formPanels) {
+    const p = $(formId)?.closest('section.panel');
+    if (p && !$(target)) p.id = target;
+  }
+  if (!$('cloudContactArea') && $('cloudContactForm')) {
+    const form = $('cloudContactForm');
+    const crm = document.createElement('section');
+    crm.className = 'panel'; crm.id = 'cloudContactArea';
+    form.parentElement.insertBefore(crm, form);
+    const list = $('cloudContactList');
+    const heading = list?.previousElementSibling;
+    const note = list?.nextElementSibling;
+    crm.appendChild(form);
+    if (heading?.tagName === 'H3') crm.appendChild(heading);
+    if (list) crm.appendChild(list);
+    if (note?.classList.contains('soon')) crm.appendChild(note);
+  }
+  const labels = [
+    ['navOverview','Overview','cloudOverviewArea'],
+    ['navCRM','CRM','cloudContactArea'],
+    ['navProjects','Projects','cloudProjectArea'],
+    ['navInvoices','Invoices','cloudInvoiceArea'],
+    ['navFinance','Finance','cloudFinanceArea'],
+    ['navOperations','Operations','cloudOperationsSection'],
+    ['navVendors','Vendors','cloud-vendors'],
+    ['navContracts','Contracts','cloud-contracts'],
+    ['navScheduling','Scheduling','cloud-scheduling'],
+    ['navInventory','Inventory','cloud-inventory']
+  ];
+  $('navAutomation')?.setAttribute('data-business-inactive','1');
+  const overview = document.createElement('section');
+  overview.id = 'cloudOverviewArea'; overview.className = 'panel';
+  overview.innerHTML = '<div class="panelhead"><div><h2>Company overview</h2><p class="soon">Your private Vannah workspace. Choose a module to manage your business records.</p></div></div>';
+  const links = document.createElement('div'); links.className = 'vannah-links';
+  for (const [_, name, id] of labels.slice(1)) {
+    if (!$(id)) continue;
+    const b = document.createElement('button'); b.type='button';
+    b.innerHTML = '<strong></strong><small>Open '+name+' workspace →</small>';
+    b.querySelector('strong').textContent = name;
+    b.addEventListener('click',()=>showSection(id));
+    links.appendChild(b);
+  }
+  overview.appendChild(links);
+  cloud.insertBefore(overview, cloud.firstChild);
+  const ids = labels.map(a=>a[2]);
+  function showSection(id) {
+    ids.forEach(i => $(i)?.classList.toggle('hidden', i !== id));
+    labels.forEach(([navId, _, target]) => {
+      const el = $(navId), selected = target === id;
+      el?.classList.toggle('active', selected);
+      el?.setAttribute('aria-current', selected?'page':'false');
+    });
+    // Keep the existing small-tab state synchronized, without triggering its old scrolling handler.
+    existingCloudNav?.querySelectorAll('[data-cloud-target]').forEach(b => {
+      b.classList.toggle('active', b.dataset.cloudTarget === id);
+    });
+  }
+  // Capture BEFORE original demo navigation listeners fire.
+  sidebar.addEventListener('click', event => {
+    const button = event.target.closest('button[id]');
+    const item = labels.find(a=>a[0]===button?.id);
+    if (!item || !document.body.classList.contains('vannah-business')) return;
+    event.preventDefault(); event.stopImmediatePropagation();
+    showSection(item[2]);
+  }, true);
+  // Navigation from company data tabs also works if they're made visible later.
+  existingCloudNav?.addEventListener('click', event => {
+    const button = event.target.closest('[data-cloud-target]');
+    if (!button || !document.body.classList.contains('vannah-business')) return;
+    event.preventDefault(); event.stopImmediatePropagation();
+    showSection(button.dataset.cloudTarget);
+  }, true);
+  showSection('cloudOverviewArea');
+});
+</script>
+<!-- END VANNAH 1.6 -->
 </body></html>
