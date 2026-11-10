@@ -308,6 +308,51 @@ const VANNAH_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_7_Mldr4P4M2uDjerO3vl7g_e
 (()=>{'use strict';
 const get=id=>document.getElementById(id);
 let client=null, user=null, companies=[], activeCompany='', cloudContacts=[], cloudProjects=[], editingCloudProject=null, cloudInvoices=[], cloudEntries=[], editingCloudInvoice=null, editingCloudEntry=null, cloudOrders=[], editingCloudOrder=null;
+
+async function startVannahCheckout(plan) {
+  if (!client || !user || !activeCompany) {
+    alert("Please sign in and select your business first.");
+    return;
+  }
+
+  if (!["starter", "business"].includes(plan)) {
+    alert("Invalid subscription plan.");
+    return;
+  }
+
+  try {
+    const { data, error } = await client.functions.invoke(
+      "create-checkout-session",
+      {
+        body: {
+          companyId: activeCompany,
+          plan: plan
+        }
+      }
+    );
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data?.url) {
+      throw new Error("Stripe Checkout URL was not returned.");
+    }
+
+    const checkoutUrl = new URL(data.url);
+
+    if (checkoutUrl.protocol !== "https:" ||
+        checkoutUrl.hostname !== "checkout.stripe.com") {
+      throw new Error("Unexpected checkout destination.");
+    }
+
+    window.location.assign(checkoutUrl.href);
+
+  } catch (error) {
+    console.error("Checkout failed:", error);
+    alert("Unable to start checkout. Please try again.");
+  }
+}
 const setMsg=(message,error=false)=>{get('cloudMessage').textContent=message;get('cloudMessage').classList.toggle('cloud-error',error)};
 const show=(id,visible)=>get(id).classList.toggle('hidden',!visible);
 const configured=VANNAH_SUPABASE_URL.startsWith('https://') && /^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/.test(VANNAH_SUPABASE_URL) && !VANNAH_SUPABASE_PUBLISHABLE_KEY.includes('PASTE_');
