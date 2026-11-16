@@ -868,4 +868,45 @@ window.addEventListener('load', () => {
 <!-- END VANNAH 1.6 -->
 <link rel="stylesheet" href="vannah-1.7.css">
 <script src="vannah-1.7.js"></script>
+
+<!-- VANNAH ACCOUNT SETTINGS NAVIGATION -->
+<style>
+  .vannah-settings-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px;
+    margin-top: 10px;
+    border: 1px solid #344669;
+    border-radius: 10px;
+    background: #152443;
+    color: #eaf1ff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .vannah-settings-link:hover {
+    background: #224078;
+  }
+</style>
+
+<script>
+  window.addEventListener("load", () => {
+    const nav = document.querySelector(".sidebar .nav");
+
+    if (!nav || document.getElementById("vannahSettingsLink")) {
+      return;
+    }
+
+    const link = document.createElement("a");
+    link.id = "vannahSettingsLink";
+    link.className = "vannah-settings-link";
+    link.href = "./settings.html";
+    link.textContent = "⚙ Account & Settings";
+
+    nav.appendChild(link);
+  });
+</script>
+<!-- END ACCOUNT SETTINGS NAVIGATION -->
 </body></html>
