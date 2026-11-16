@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1">
+  <title>Account & Settings | Vannah</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #0b1220;
+      color: #f1f5f9;
+      font-family: system-ui, sans-serif;
+    }
+    header {
+      padding: 20px 6%;
+      border-bottom: 1px solid #263244;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    a { color: #8bbcff; text-decoration: none; }
+    main { max-width: 760px; margin: 45px auto; padding: 20px; }
+    h1 { font-size: 32px; }
+    h2 { font-size: 19px; margin-top: 0; }
+    .card {
+      background: #162133;
+      border: 1px solid #2b3b50;
+      border-radius: 14px;
+      padding: 25px;
+      margin: 20px 0;
+    }
+    label { display: block; margin: 15px 0 6px; }
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #44546a;
+      border-radius: 8px;
+      background: #0b1220;
+      color: white;
+    }
+    button {
+      padding: 12px 20px;
+      margin-top: 15px;
+      border: 0;
+      border-radius: 8px;
+      background: #3979ec;
+      color: white;
+      cursor: pointer;
+    }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    .muted { color: #aebdd0; }
+    #message { min-height: 24px; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>VANNAH</strong>
+    <a href="./index.html">Back to Workspace</a>
+  </header>
+
+  <main>
+    <h1>Account & Settings</h1>
+    <p class="muted">Manage your Vannah account.</p>
+
+    <p id="message" role="status" aria-live="polite">
+      Checking your account...
+    </p>
+
+    <div id="settingsContent" hidden>
+      <section class="card">
+        <h2>Profile</h2>
+        <p>Email: <span id="email"></span></p>
+
+        <label for="fullName">Full name</label>
+        <input id="fullName" maxlength="120"
+               autocomplete="name">
+
+        <button id="saveProfile">Save Profile</button>
+      </section>
+
+      <section class="card">
+        <h2>Business</h2>
+        <p>Your company memberships:</p>
+        <p id="companyName" class="muted">Loading...</p>
+      </section>
+
+      <section class="card">
+        <h2>Subscription & Billing</h2>
+        <p class="muted">
+          Billing management is being connected.
+          Subscription information is not yet verified
+          on this page.
+        </p>
+        <button disabled>Manage Billing</button>
+      </section>
+
+      <section class="card">
+        <h2>Security</h2>
+        <label for="password">New password</label>
+        <input id="password" type="password"
+               minlength="12" autocomplete="new-password">
+
+        <button id="changePassword">Change Password</button>
+        <p class="muted">
+          Use at least 12 characters.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Session</h2>
+        <button id="signOut">Sign Out</button>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    const SUPABASE_URL =
+      "https://uwvjhhvwzfdsyfktnsqb.supabase.co";
+
+    // Public browser key; never use a service-role key.
+    const SUPABASE_KEY =
+      "sb_publishable_7_Mldr4P4M2uDjerO3vl7g_eVvEDRC7";
+
+    const db = window.supabase.createClient(
+      SUPABASE_URL, SUPABASE_KEY
+    );
+
+    const el = id => document.getElementById(id);
+    const notify = msg => el("message").textContent = msg;
+    let currentUser = null;
+
+    async function initialize() {
+      const { data, error } = await db.auth.getUser();
+
+      if (error || !data.user) {
+        notify("Please sign in through your workspace.");
+        return;
+      }
+
+      currentUser = data.user;
+      el("settingsContent").hidden = false;
+      el("email").textContent = currentUser.email || "";
+      el("fullName").value =
+        currentUser.user_metadata?.full_name || "";
+
+      notify("Account loaded.");
+
+      const { data: memberships, error: memberError } =
+        await db.from("vannah_memberships")
+          .select("company_id")
+          .eq("user_id", currentUser.id);
+
+      if (memberError) {
+        el("companyName").textContent =
+          "Unable to load memberships.";
+        return;
+      }
+
+      const ids = (memberships || [])
+        .map(m => m.company_id);
+
+      if (!ids.length) {
+        el("companyName").textContent =
+          "No company workspace found.";
+        return;
+      }
+
+      const { data: companies, error: companyError } =
+        await db.from("vannah_companies")
+          .select("name")
+          .in("id", ids);
+
+      el("companyName").textContent = companyError
+        ? "Unable to load company names."
+        : (companies || []).map(c => c.name).join(", ");
+    }
+
+    el("saveProfile").addEventListener("click", async () => {
+      if (!currentUser) return;
+
+      const fullName = el("fullName").value.trim();
+      if (!fullName) {
+        notify("Enter your name.");
+        return;
+      }
+
+      const { error } = await db.auth.updateUser({
+        data: { full_name: fullName }
+      });
+
+      notify(error
+        ? "Profile update failed: " + error.message
+        : "Profile updated successfully.");
+    });
+
+    el("changePassword").addEventListener("click", async () => {
+      if (!currentUser) return;
+
+      const password = el("password").value;
+      if (password.length < 12) {
+        notify("Password must contain at least 12 characters.");
+        return;
+      }
+
+      const { error } = await db.auth.updateUser({
+        password
+      });
+
+      el("password").value = "";
+
+      notify(error
+        ? "Password update failed: " + error.message
+        : "Password updated successfully.");
+    });
+
+    el("signOut").addEventListener("click", async () => {
+      const { error } = await db.auth.signOut();
+
+      if (error) {
+        notify("Sign out failed: " + error.message);
+        return;
+      }
+
+      window.location.replace("./index.html");
+    });
+
+    initialize().catch(() => {
+      notify("Unable to load account settings.");
+    });
+  </script>
+</body>
+</html>
